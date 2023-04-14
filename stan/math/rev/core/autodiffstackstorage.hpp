@@ -90,13 +90,14 @@ struct AutodiffStackSingleton {
   using AutodiffStackSingleton_t
       = AutodiffStackSingleton<ChainableT, ChainableAllocT>;
 
-  AutodiffStackSingleton() : own_instance_(init()) {}
-  ~AutodiffStackSingleton() {
-    if (own_instance_) {
-      delete instance_;
-      instance_ = nullptr;
-    }
-  }
+  // AutodiffStackSingleton() : own_instance_(init()) {}
+  AutodiffStackSingleton() = default;
+  // ~AutodiffStackSingleton() {
+  //   if (own_instance_) {
+  //     delete instance_;
+  //     instance_ = nullptr;
+  //   }
+  // }
 
   struct AutodiffStackStorage {
     AutodiffStackStorage &operator=(const AutodiffStackStorage &) = delete;
@@ -115,32 +116,35 @@ struct AutodiffStackSingleton {
   explicit AutodiffStackSingleton(AutodiffStackSingleton_t const &) = delete;
   AutodiffStackSingleton &operator=(const AutodiffStackSingleton_t &) = delete;
 
-  static STAN_THREADS_DEF AutodiffStackStorage *instance_;
-
- private:
-  static bool init() {
-    static STAN_THREADS_DEF bool is_initialized = false;
-    if (!is_initialized) {
-      is_initialized = true;
-      instance_ = new AutodiffStackStorage();
-      return true;
-    }
-    if (!instance_) {
-      is_initialized = true;
-      instance_ = new AutodiffStackStorage();
-      return true;
-    }
-    return false;
+  static STAN_THREADS_DEF AutodiffStackStorage *instance() {
+    static AutodiffStackStorage instance_;
+    return &instance_;
   }
 
-  bool own_instance_;
+ private:
+  // static bool init() {
+  //   static STAN_THREADS_DEF bool is_initialized = false;
+  //   if (!is_initialized) {
+  //     is_initialized = true;
+  //     instance_ = new AutodiffStackStorage();
+  //     return true;
+  //   }
+  //   if (!instance_) {
+  //     is_initialized = true;
+  //     instance_ = new AutodiffStackStorage();
+  //     return true;
+  //   }
+  //   return false;
+  // }
+
+  // bool own_instance_;
 };
 
-template <typename ChainableT, typename ChainableAllocT>
-STAN_THREADS_DEF
-    typename AutodiffStackSingleton<ChainableT,
-                                    ChainableAllocT>::AutodiffStackStorage
-        *AutodiffStackSingleton<ChainableT, ChainableAllocT>::instance_;
+// template <typename ChainableT, typename ChainableAllocT>
+// STAN_THREADS_DEF
+//     typename AutodiffStackSingleton<ChainableT,
+//                                     ChainableAllocT>::AutodiffStackStorage
+//         *AutodiffStackSingleton<ChainableT, ChainableAllocT>::instance_;
 
 }  // namespace math
 }  // namespace stan

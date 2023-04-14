@@ -9,15 +9,15 @@ TEST(thread_stack_instance, initialize) {
   // the main thread must be initialized by the time this code is
   // reached. This will actually segfault if this is not the case.
   // The pointer to the reference returned must evaluate to true.
-  EXPECT_TRUE(ChainableStack::instance_);
+  EXPECT_TRUE(ChainableStack::instance());
 
   ChainableStack::AutodiffStackStorage* main_ad_stack
-      = ChainableStack::instance_;
+      = ChainableStack::instance();
 
   auto thread_tester = [&]() -> void {
     ChainableStack thread_instance;
-    EXPECT_TRUE(ChainableStack::instance_);
-    EXPECT_TRUE(ChainableStack::instance_
+    EXPECT_TRUE(ChainableStack::instance());
+    EXPECT_TRUE(ChainableStack::instance()
 #ifdef STAN_THREADS
                 !=
 #else
@@ -37,15 +37,15 @@ TEST(thread_stack_instance, repeated_initialize) {
   // the main thread must be initialized by the time this code is
   // reached. This will actually segfault if this is not the case.
   // The pointer to the reference returned must evaluate to true.
-  EXPECT_TRUE(ChainableStack::instance_);
+  EXPECT_TRUE(ChainableStack::instance());
 
   ChainableStack::AutodiffStackStorage* main_ad_stack
-      = ChainableStack::instance_;
+      = ChainableStack::instance();
 
   auto thread_tester_with_refresh = [&]() -> void {
     ChainableStack* thread_instance_ptr = new ChainableStack();
-    EXPECT_TRUE(ChainableStack::instance_);
-    EXPECT_TRUE(ChainableStack::instance_
+    EXPECT_TRUE(ChainableStack::instance());
+    EXPECT_TRUE(ChainableStack::instance()
 #ifdef STAN_THREADS
                 !=
 #else
@@ -57,15 +57,15 @@ TEST(thread_stack_instance, repeated_initialize) {
 #ifdef STAN_THREADS
     // if STAN_THREADS is set, then the stack instance is now
     // cleaned
-    EXPECT_FALSE(ChainableStack::instance_);
+    EXPECT_FALSE(ChainableStack::instance());
 #else
     // if STAN_THREADS is not set, then thread_instance_ptr does
     // not own the stack and as such there is no tear down
-    EXPECT_TRUE(ChainableStack::instance_);
+    EXPECT_TRUE(ChainableStack::instance());
 #endif
     thread_instance_ptr = new ChainableStack();
-    EXPECT_TRUE(ChainableStack::instance_);
-    EXPECT_TRUE(ChainableStack::instance_
+    EXPECT_TRUE(ChainableStack::instance());
+    EXPECT_TRUE(ChainableStack::instance()
 #ifdef STAN_THREADS
                 !=
 #else
@@ -88,20 +88,20 @@ TEST(thread_stack_instance, child_instances) {
   stan::math::var b = a * a;
 
   ChainableStack::AutodiffStackStorage* main_ad_stack
-      = ChainableStack::instance_;
+      = ChainableStack::instance();
 
   auto thread_tester = [&]() -> void {
     ChainableStack thread_instance;
     EXPECT_TRUE(
         main_ad_stack->var_stack_.size()
-            + stan::math::ChainableStack::instance_->var_nochain_stack_.size()
+            + stan::math::ChainableStack::instance()->var_nochain_stack_.size()
 #ifdef STAN_THREADS
         >
 #else
         ==
 #endif
-        ChainableStack::instance_->var_stack_.size()
-            + stan::math::ChainableStack::instance_->var_nochain_stack_.size());
+        ChainableStack::instance()->var_stack_.size()
+            + stan::math::ChainableStack::instance()->var_nochain_stack_.size());
   };
 
   std::thread other_work(thread_tester);
@@ -113,20 +113,20 @@ TEST(thread_stack_instance, persistence) {
   using stan::math::ChainableStack;
 
   ChainableStack::AutodiffStackStorage* main_ad_stack
-      = ChainableStack::instance_;
+      = ChainableStack::instance();
 
   {
     // this obviously must be true
-    EXPECT_TRUE(ChainableStack::instance_ == main_ad_stack);
+    EXPECT_TRUE(ChainableStack::instance() == main_ad_stack);
 
     // and when constructing a new instance ...
     ChainableStack another_tape;
 
     // ... this must still be true ...
-    EXPECT_TRUE(ChainableStack::instance_ == main_ad_stack);
+    EXPECT_TRUE(ChainableStack::instance() == main_ad_stack);
   }
 
   // ... and if we now let another_tape fade away we still expect the
   // main tape to stay around
-  EXPECT_TRUE(ChainableStack::instance_ == main_ad_stack);
+  EXPECT_TRUE(ChainableStack::instance() == main_ad_stack);
 }

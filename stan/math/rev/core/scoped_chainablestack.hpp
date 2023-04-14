@@ -37,16 +37,16 @@ class ScopedChainableStack {
     ScopedChainableStack& scoped_stack_;
 
     explicit activate_scope(ScopedChainableStack& scoped_stack)
-        : parent_stack_(ChainableStack::instance_),
+        : parent_stack_(ChainableStack::instance()),
           scoped_stack_(scoped_stack) {
       if (!scoped_stack_.local_stack_mutex_.try_lock()) {
         throw std::logic_error{"Cannot recurse same instance scoped stacks."};
       }
-      ChainableStack::instance_ = &scoped_stack.local_stack_;
+      ChainableStack::instance() = &scoped_stack.local_stack_;
     }
 
     ~activate_scope() {
-      ChainableStack::instance_ = parent_stack_;
+      ChainableStack::instance() = parent_stack_;
       scoped_stack_.local_stack_mutex_.unlock();
     }
   };
